@@ -1,419 +1,494 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>💬 DarkyBot - Chat Tornasol Pro (Menús ordenados)</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    * { box-sizing: border-box; font-family: "Poppins", "Segoe UI", sans-serif; }
-    body { margin: 0; background: radial-gradient(circle at top right, #ffffff12 0%, #000000 80%); color: #fff; display: flex; align-items: center; justify-content: center; height: 100dvh; overflow: hidden; }
-    .chat-container { width: 100%; max-width: 420px; height: 100dvh; max-height: 820px; background: rgba(18,18,18,0.95); border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 6px 30px rgba(0,0,0,0.6); display: flex; flex-direction: column; overflow: hidden; position: relative; }
-    .chat-container::before { content: ""; position: absolute; inset: 0; padding: 2px; background: linear-gradient(135deg, #ffffff, #d3f8ff, #fff0ff, #ffffff); background-size: 400% 400%; -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: glow 8s linear infinite; pointer-events: none; z-index: 0; border-radius: 10px; }
-    @keyframes glow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-    .chat-header { z-index:1; background: rgba(255,255,255,0.04); padding: 16px; text-align: center; font-weight: 600; font-size: 1.05rem; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.04); }
-    .chat-box { z-index:1; flex:1; padding: 18px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.15)); }
-    .msg { max-width: 82%; padding: 12px 14px; border-radius: 10px; font-size: 14.5px; word-break: break-word; border: 1px solid rgba(255,255,255,0.04); backdrop-filter: blur(4px); }
-    .bot { align-self: flex-start; background: linear-gradient(90deg,#f3e7ff,#ffffff); color: #000; border-radius: 10px 10px 10px 3px; }
-    .user { align-self: flex-end; background: linear-gradient(90deg,#ffffff,#c7f5ff); color:#000; border-radius: 10px 10px 3px 10px; }
-    .input-area { z-index:1; display:flex; border-top: 1px solid rgba(255,255,255,0.04); background: rgba(0,0,0,0.2); padding: 8px; gap:8px; }
-    .input-area input { flex:1; border:none; padding:12px; background: transparent; color: #fff; outline:none; font-size: 15px; border-radius:6px; }
-    .input-area button { background: linear-gradient(90deg,#ffffff,#c7f5ff,#ffffff); border:none; padding: 10px 16px; font-weight:700; cursor:pointer; color:#000; border-radius:6px; }
-    .small { font-size:12px; opacity:0.9; }
-    ol.menu { margin:8px 0 0 18px; padding:0; color: inherit; }
-    ol.menu li { margin:6px 0; line-height:1.4; }
-    .note { font-size:13px; color:#333; display:block; margin-top:8px; }
-    ::-webkit-scrollbar{ width:8px; } ::-webkit-scrollbar-thumb{ background: rgba(255,255,255,0.08); border-radius:8px; }
-    pre { margin: 0; white-space: pre-wrap; font-family: inherit; font-size: 14px; }
-  </style>
-</head>
-<body>
-  <div class="chat-container" role="main" aria-label="DarkyBot chat">
-    <div class="chat-header">💬 DarkyBot — Tornasol Pro</div>
-    <div class="chat-box" id="chatBox" aria-live="polite"></div>
-    <div class="input-area">
-      <input id="userInput" type="text" placeholder="Escribe tu mensaje y presiona Enter..." autocomplete="off" />
-      <button onclick="sendMessage()">Enviar</button>
+  <!DOCTYPE html>
+  <html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>💬 DarkyBot - Chat Tornasol Pro (Menús ordenados)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+      * { box-sizing: border-box; font-family: "Poppins", "Segoe UI", sans-serif; }
+      body { margin: 0; background: radial-gradient(circle at top right, #ffffff12 0%, #000000 80%); color: #fff; display: flex; align-items: center; justify-content: center; height: 100dvh; overflow: hidden; }
+      .chat-container { width: 100%; max-width: 420px; height: 100dvh; max-height: 820px; background: rgba(18,18,18,0.95); border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 6px 30px rgba(0,0,0,0.6); display: flex; flex-direction: column; overflow: hidden; position: relative; }
+      .chat-container::before { content: ""; position: absolute; inset: 0; padding: 2px; background: linear-gradient(135deg, #ffffff, #d3f8ff, #fff0ff, #ffffff); background-size: 400% 400%; -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: glow 8s linear infinite; pointer-events: none; z-index: 0; border-radius: 10px; }
+      @keyframes glow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+      .chat-header { z-index:1; background: rgba(255,255,255,0.04); padding: 16px; text-align: center; font-weight: 600; font-size: 1.05rem; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+      .chat-box { z-index:1; flex:1; padding: 18px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.15)); }
+      .msg { max-width: 82%; padding: 12px 14px; border-radius: 10px; font-size: 14.5px; word-break: break-word; border: 1px solid rgba(255,255,255,0.04); backdrop-filter: blur(4px); }
+      .bot { align-self: flex-start; background: linear-gradient(90deg,#f3e7ff,#ffffff); color: #000; border-radius: 10px 10px 10px 3px; }
+      .user { align-self: flex-end; background: linear-gradient(90deg,#ffffff,#c7f5ff); color:#000; border-radius: 10px 10px 3px 10px; }
+      .input-area { z-index:1; display:flex; border-top: 1px solid rgba(255,255,255,0.04); background: rgba(0,0,0,0.2); padding: 8px; gap:8px; }
+      .input-area input { flex:1; border:none; padding:12px; background: transparent; color: #fff; outline:none; font-size: 15px; border-radius:6px; }
+      .input-area button { background: linear-gradient(90deg,#ffffff,#c7f5ff,#ffffff); border:none; padding: 10px 16px; font-weight:700; cursor:pointer; color:#000; border-radius:6px; }
+      .small { font-size:12px; opacity:0.9; }
+      ol.menu { margin:8px 0 0 18px; padding:0; color: inherit; }
+      ol.menu li { margin:6px 0; line-height:1.4; }
+      .note { font-size:13px; color:#333; display:block; margin-top:8px; }
+      ::-webkit-scrollbar{ width:8px; } ::-webkit-scrollbar-thumb{ background: rgba(255,255,255,0.08); border-radius:8px; }
+      pre { margin: 0; white-space: pre-wrap; font-family: inherit; font-size: 14px; }
+    </style>
+  </head>
+  <body>
+    <div class="chat-container" role="main" aria-label="DarkyBot chat">
+      <div class="chat-header">💬 DarkyBot — Tornasol Pro</div>
+      <div class="chat-box" id="chatBox" aria-live="polite"></div>
+      <div class="input-area">
+        <input id="userInput" type="text" placeholder="Escribe tu mensaje y presiona Enter..." autocomplete="off" />
+        <button onclick="sendMessage()">Enviar</button>
+      </div>
     </div>
-  </div>
 
-<script>
-/* DarkyBot Tornasol Pro - Menús ordenados verticales */
+  <script>
 
-// DOM
-const chatBox = document.getElementById('chatBox');
-const userInput = document.getElementById('userInput');
+    
+  /*
+    Versión simplificada del JS original: misma funcionalidad y estética,
+    menos repetición, funciones utilitarias y estructura de estado única.
+  */
 
-// Estados
-let stage = 0;
-let userName = '';
-let userPurposeIndex = null;
-let userBudget = 0;
-let userBudgetLabel = '';
-let lastConfigs = [];
-let userLastChoice = null;
-const EXCESS_LIMIT = 500000;
+  /* ---------- DOM ---------- */
+  const chatBox = document.getElementById('chatBox');
+  const userInput = document.getElementById('userInput');
 
-// Componentes y templates (precios aproximados COP)
-const parts = {
-  cpu: {
-    low: {name: "Ryzen 3 4100", price: 350000},
-    mid: {name: "Ryzen 5 5600X", price: 699000},
-    mid_plus: {name: "i5-12400F", price: 650000},
-    high: {name: "Ryzen 7 7700X", price: 1250000},
-    top: {name: "Ryzen 9 7900X", price: 2100000}
-  },
-  ram: {
-    ddr4_16: {name: "RAM 16GB DDR4", price: 245900},
-    ddr5_32: {name: "RAM 32GB DDR5", price: 520000},
-    ddr5_64: {name: "RAM 64GB DDR5", price: 1040000}
-  },
-  gpu: {
-    gtx1650: {name: "GTX 1650 4GB", price: 700000},
-    rtx3060: {name: "RTX 3060 12GB", price: 1800000},
-    rtx4060: {name: "RTX 4060 8GB", price: 2200000},
-    rtx4070: {name: "RTX 4070 12GB", price: 3000000}
-  },
-  ssd: {
-    ssd500: {name: "SSD 500GB", price: 250000},
-    ssd1tb: {name: "SSD 1TB NVMe", price: 480000},
-    ssd2tb: {name: "SSD 2TB NVMe", price: 950000}
-  },
-  board: {
-    b550: {name: "Placa Madre B550", price: 480000},
-    x670: {name: "Placa Madre X670", price: 780000},
-    x670e: {name: "Placa Madre X670E", price: 1200000}
-  },
-  psu: {
-    w600: {name: "Fuente 600W", price: 220000},
-    w750: {name: "Fuente 750W", price: 380000},
-    w850: {name: "Fuente 850W", price: 580000}
+  /* ---------- Estado central ---------- */
+  const state = {
+    stage: 0,
+    userName: '',
+    purposeIndex: null,
+    budget: 0,
+    budgetLabel: '',
+    lastConfigs: [],
+    chosenConfig: null,
+    peripheralsSelected: [],
+    stage7State: null
+  };
+
+  const EXCESS_LIMIT = 500000;
+
+  /* ---------- Datos (sin cambios significativos) ---------- */
+  const parts = {
+    cpu: { low:{name:"Ryzen 3 4100",price:350000}, mid:{name:"Ryzen 5 5600X",price:699000}, mid_plus:{name:"i5-12400F",price:650000}, high:{name:"Ryzen 7 7700X",price:1250000}, top:{name:"Ryzen 9 7900X",price:2100000} },
+    ram: { ddr4_16:{name:"RAM 16GB DDR4",price:245900}, ddr5_32:{name:"RAM 32GB DDR5",price:520000}, ddr5_64:{name:"RAM 64GB DDR5",price:1040000} },
+    gpu: { gtx1650:{name:"GTX 1650 4GB",price:700000}, rtx3060:{name:"RTX 3060 12GB",price:1800000}, rtx4060:{name:"RTX 4060 8GB",price:2200000}, rtx4070:{name:"RTX 4070 12GB",price:3000000} },
+    ssd: { ssd500:{name:"SSD 500GB",price:250000}, ssd1tb:{name:"SSD 1TB NVMe",price:480000}, ssd2tb:{name:"SSD 2TB NVMe",price:950000} },
+    board: { b550:{name:"Placa Madre B550",price:480000}, x670:{name:"Placa Madre X670",price:780000}, x670e:{name:"Placa Madre X670E",price:1200000} },
+    psu: { w600:{name:"Fuente 600W",price:220000}, w750:{name:"Fuente 750W",price:380000}, w850:{name:"Fuente 850W",price:580000} }
+  };
+
+  const peripherals = {
+    monitors: [
+      {name: "Monitor 21.5\" FHD 60Hz (básico)", price: 330000},
+      {name: "Monitor 24\" FHD 75Hz (económico)", price: 450000},
+      {name: "Monitor 27\" 144Hz 1080p (intermedio)", price: 800000},
+      {name: "Monitor 27\" QHD 144Hz (avanzado)", price: 1400000},
+      {name: "Monitor 32\" 4K IPS (premium)", price: 1800000}
+    ],
+    keyboards: [
+      {name: "Teclado membrana básico (combo)", price: 80000},
+      {name: "Teclado mecánico entry-level (brown)", price: 200000},
+      {name: "Teclado mecánico RGB (intermedio)", price: 350000},
+      {name: "Teclado mecánico premium (hot-swap)", price: 550000},
+      {name: "Teclado mecánico tope de gama (RGB, macro)", price: 800000}
+    ],
+    mice: [
+      {name: "Mouse óptico básico", price: 30000},
+      {name: "Mouse inalámbrico económico", price: 70000},
+      {name: "Mouse gamer 8000 DPI (intermedio)", price: 120000},
+      {name: "Mouse gamer avanzado (sensor premium)", price: 250000},
+      {name: "Mouse tope de gama (alta precisión)", price: 350000}
+    ],
+    headsets: [
+      {name: "Audífonos estéreo básico", price: 70000},
+      {name: "Auriculares on-ear con micrófono", price: 140000},
+      {name: "Headset gaming 7.1 (intermedio)", price: 220000},
+      {name: "Headset inalámbrico premium", price: 380000},
+      {name: "Auriculares estudio/profesional", price: 500000}
+    ],
+    chairs: [
+      {name: "Silla ergonómica básica", price: 450000},
+      {name: "Silla gamer económica", price: 650000},
+      {name: "Silla gamer intermedia (con soporte lumbar)", price: 900000},
+      {name: "Silla premium (piel sintética)", price: 1200000},
+      {name: "Silla tope de gama (ergonomía avanzada)", price: 1500000}
+    ]
+  };
+
+  const purposeTemplates = [
+    { cpu: 'mid', ram: 'ddr4_16', gpu: 'gtx1650', ssd: 'ssd500', board: 'b550', psu: 'w600' },
+    { cpu: 'mid', ram: 'ddr4_16', gpu: 'rtx3060', ssd: 'ssd1tb', board: 'b550', psu: 'w750' },
+    { cpu: 'high', ram: 'ddr5_32', gpu: 'rtx4060', ssd: 'ssd2tb', board: 'x670', psu: 'w750' },
+    { cpu: 'high', ram: 'ddr5_32', gpu: 'rtx4060', ssd: 'ssd1tb', board: 'x670', psu: 'w850' },
+    { cpu: 'top', ram: 'ddr5_64', gpu: 'rtx4070', ssd: 'ssd2tb', board: 'x670e', psu: 'w850' },
+    { cpu: 'high', ram: 'ddr5_32', gpu: 'rtx4060', ssd: 'ssd1tb', board: 'x670', psu: 'w750' },
+    { cpu: 'top', ram: 'ddr5_64', gpu: 'rtx4070', ssd: 'ssd2tb', board: 'x670e', psu: 'w850' }
+  ];
+
+  const budgetRanges = [
+    { label: "Hasta 2 millones", value: 2000000 },
+    { label: "Hasta 4 millones", value: 4000000 },
+    { label: "Hasta 6 millones", value: 6000000 },
+    { label: "Hasta 8 millones", value: 8000000 },
+    { label: "Hasta 10 millones o más", value: 10000000 }
+  ];
+
+  /* ---------- Utilidades ---------- */
+  const appendMessage = (who, html, small=false) => {
+    const d = document.createElement('div');
+    d.className = 'msg ' + (who==='bot' ? 'bot' : 'user');
+    if(small) d.classList.add('small');
+    d.innerHTML = html;
+    chatBox.appendChild(d);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  };
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const fmt = n => n.toLocaleString('es-CO');
+  const sum = arr => arr.reduce((a,b)=>a+(b.price||0),0);
+
+  /* Construye config (lista de objetos) desde la plantilla */
+  function buildConfig(template){
+    return [ parts.cpu[template.cpu], parts.ram[template.ram], parts.gpu[template.gpu], parts.ssd[template.ssd], parts.board[template.board], parts.psu[template.psu] ];
   }
-};
 
-const purposeTemplates = [
-  { cpu: 'mid', ram: 'ddr4_16', gpu: 'gtx1650', ssd: 'ssd500', board: 'b550', psu: 'w600' },
-  { cpu: 'mid', ram: 'ddr4_16', gpu: 'rtx3060', ssd: 'ssd1tb', board: 'b550', psu: 'w750' },
-  { cpu: 'high', ram: 'ddr5_32', gpu: 'rtx4060', ssd: 'ssd2tb', board: 'x670', psu: 'w750' },
-  { cpu: 'high', ram: 'ddr5_32', gpu: 'rtx4060', ssd: 'ssd1tb', board: 'x670', psu: 'w850' },
-  { cpu: 'top', ram: 'ddr5_64', gpu: 'rtx4070', ssd: 'ssd2tb', board: 'x670e', psu: 'w850' }
-];
-
-const budgetRanges = [
-  { label: "Hasta 2 millones", value: 2000000 },
-  { label: "Hasta 4 millones", value: 4000000 },
-  { label: "Hasta 6 millones", value: 6000000 },
-  { label: "Hasta 8 millones", value: 8000000 },
-  { label: "Hasta 10 millones o más", value: 10000000 }
-];
-
-// Helpers
-function appendMessage(sender, htmlContent, small=false){
-  const d = document.createElement('div');
-  d.className = 'msg ' + (sender==='bot' ? 'bot' : 'user');
-  if(small) d.classList.add('small');
-  d.innerHTML = htmlContent;
-  chatBox.appendChild(d);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function formatCOP(n){ return n.toLocaleString('es-CO'); }
-function sumComponents(list){ return list.reduce((a,p)=>a+(p.price||0),0); }
-
-function buildConfigFromTemplate(template){
-  const c = [];
-  c.push(parts.cpu[template.cpu]);
-  c.push(parts.ram[template.ram]);
-  c.push(parts.gpu[template.gpu]);
-  c.push(parts.ssd[template.ssd]);
-  c.push(parts.board[template.board]);
-  c.push(parts.psu[template.psu]);
-  return c;
-}
-
-// Ajuste iterativo para entrar en budget + EXCESS_LIMIT
-function adjustConfigToBudget(config, budgetMax){
-  let conf = config.slice();
-  const maxAllowed = budgetMax + EXCESS_LIMIT;
-  if(sumComponents(conf) <= maxAllowed) return {config: conf, total: sumComponents(conf)};
-
-  const downgradeLists = {
-    gpu: ['rtx4070','rtx4060','rtx3060','gtx1650'],
-    ram: ['ddr5_64','ddr5_32','ddr4_16'],
-    cpu: ['top','high','mid_plus','mid','low'],
-    ssd: ['ssd2tb','ssd1tb','ssd500'],
-    board: ['x670e','x670','b550'],
-    psu: ['w850','w750','w600']
-  };
-
-  // map current items by category key
-  const findKey = (part) => {
-    for(const cat in parts){
-      for(const code in parts[cat]){
-        if(parts[cat][code].name === part.name) return {cat, code};
+  /* Downgrade sencillo intentando meter config dentro del rango + EXCESS_LIMIT */
+  function adjustConfigToBudget(cfgList, budgetMax){
+    const maxAllowed = budgetMax + EXCESS_LIMIT;
+    let conf = cfgList.slice();
+    if(sum(conf) <= maxAllowed) return {config: conf, total: sum(conf)};
+    // Ordenes de preferencia descendente a bajar
+    const downgradeOrder = {
+      gpu:['rtx4070','rtx4060','rtx3060','gtx1650'],
+      ram:['ddr5_64','ddr5_32','ddr4_16'],
+      cpu:['top','high','mid_plus','mid','low'],
+      ssd:['ssd2tb','ssd1tb','ssd500'],
+      board:['x670e','x670','b550'],
+      psu:['w850','w750','w600']
+    };
+    // helper para encontrar (cat,code) por nombre en conf
+    const findKey = (part) => {
+      for(const cat in parts){
+        for(const code in parts[cat]) if(parts[cat][code].name === part.name) return {cat, code};
       }
-    }
-    return null;
-  };
-
-  let changed = true;
-  while(sumComponents(conf) > maxAllowed && changed){
-    changed = false;
-    // try downgrades in order
-    for(const cat of ['gpu','ram','cpu','ssd','board','psu']){
-      // find index of current code
-      let idx = -1;
-      for(let i=0;i<conf.length;i++){
-        const k = findKey(conf[i]);
-        if(k && k.cat === cat){ idx = downgradeLists[cat].indexOf(k.code); break; }
-      }
-      if(idx === -1) continue;
-      // attempt to replace with next cheaper
-      for(let j=idx+1;j<downgradeLists[cat].length;j++){
-        const code = downgradeLists[cat][j];
-        const candidate = parts[cat][code];
-        if(!candidate) continue;
-        // replace in conf
+      return null;
+    };
+    let changed=true;
+    while(sum(conf) > maxAllowed && changed){
+      changed=false;
+      for(const cat of ['gpu','ram','cpu','ssd','board','psu']){
         for(let i=0;i<conf.length;i++){
-          const k = findKey(conf[i]);
-          if(k && k.cat === cat){
-            conf[i] = candidate;
+          const k=findKey(conf[i]);
+          if(!k || k.cat!==cat) continue;
+          const idx = downgradeOrder[cat].indexOf(k.code);
+          if(idx < 0 || idx === downgradeOrder[cat].length-1) continue;
+          const nextCode = downgradeOrder[cat][idx+1];
+          if(parts[cat][nextCode]){
+            conf[i] = parts[cat][nextCode];
             changed = true;
             break;
           }
         }
-        if(changed) break;
+        if(!changed) continue;
+        if(sum(conf) <= maxAllowed) break;
       }
-      if(sumComponents(conf) <= maxAllowed) break;
     }
-  }
-  return { config: conf, total: sumComponents(conf) };
-}
-
-function generateConfigs(purposeIndex, budgetMax){
-  const template = purposeTemplates[purposeIndex];
-  const base = buildConfigFromTemplate(template);
-
-  const configs = [];
-
-  // 1 - Ideal ajustado
-  const ideal = adjustConfigToBudget(base, budgetMax);
-  configs.push({ title: "Configuración sugerida (optimizada)", parts: ideal.config, total: ideal.total, note: ideal.total > budgetMax ? `Se excede ${formatCOP(ideal.total - budgetMax)} COP.` : null });
-
-  // 2 - Económica (intento obtener versión más barata)
-  const cheapTemp = JSON.parse(JSON.stringify(template));
-  // heurísticos de downgrade
-  if(cheapTemp.gpu === 'rtx4070') cheapTemp.gpu = 'rtx4060';
-  if(cheapTemp.gpu === 'rtx4060') cheapTemp.gpu = 'rtx3060';
-  if(cheapTemp.cpu === 'top') cheapTemp.cpu = 'high';
-  if(cheapTemp.ram === 'ddr5_64') cheapTemp.ram = 'ddr5_32';
-  if(cheapTemp.ssd === 'ssd2tb') cheapTemp.ssd = 'ssd1tb';
-  if(cheapTemp.board === 'x670e') cheapTemp.board = 'x670';
-  const cheap = adjustConfigToBudget(buildConfigFromTemplate(cheapTemp), budgetMax);
-  configs.push({ title: "Alternativa económica (ajustada)", parts: cheap.config, total: cheap.total, note: cheap.total > budgetMax ? `Se excede ${formatCOP(cheap.total - budgetMax)} COP.` : null });
-
-  // 3 - Performance (prioriza GPU si cabe)
-  const perfTemp = JSON.parse(JSON.stringify(template));
-  const orderGpu = ['gtx1650','rtx3060','rtx4060','rtx4070'];
-  // set to next gpu if possible
-  let currentGpu = template.gpu;
-  let idx = orderGpu.indexOf(currentGpu);
-  if(idx < orderGpu.length - 1) perfTemp.gpu = orderGpu[idx + 1];
-  const perf = adjustConfigToBudget(buildConfigFromTemplate(perfTemp), budgetMax);
-  if(perf.total <= budgetMax + EXCESS_LIMIT) {
-    configs.push({ title: "Alternativa enfocada en GPU", parts: perf.config, total: perf.total, note: perf.total > budgetMax ? `Se excede ${formatCOP(perf.total - budgetMax)} COP para priorizar GPU.` : null });
-  } else {
-    // fallback: repeat ideal (evita duplicados luego)
-    configs.push({ title: "Alternativa balanceada", parts: ideal.config, total: ideal.total, note: ideal.total > budgetMax ? `Se excede ${formatCOP(ideal.total - budgetMax)} COP.` : null });
+    return {config: conf, total: sum(conf)};
   }
 
-  // Unificar únicos
-  const unique = [];
-  const seen = new Set();
-  for(const c of configs){
-    const key = c.parts.map(p=>p.name).join('|') + '|' + Math.round(c.total/1000);
-    if(!seen.has(key)){ unique.push(c); seen.add(key); }
+  /* Genera hasta 3 alternativas (optimizada, económica, enfocada GPU) */
+  function generateConfigs(purposeIndex, budgetMax){
+    const t = purposeTemplates[purposeIndex];
+    const base = buildConfig(t);
+
+    const pushIfUnique = (list, cand) => {
+      const key = cand.parts.map(p=>p.name).join('|')+'|'+Math.round(cand.total/1000);
+      if(!list.some(x=> x.parts.map(p=>p.name).join('|')+'|'+Math.round(x.total/1000) === key)) list.push(cand);
+    };
+
+    const configs = [];
+    // opción optimizada (ajuste iterativo)
+    const ideal = adjustConfigToBudget(base, budgetMax);
+    pushIfUnique(configs, {title:"Configuración sugerida (optimizada)", parts: ideal.config, total: ideal.total, note: ideal.total > budgetMax ? `Se excede ${fmt(ideal.total - budgetMax)} COP.` : null});
+
+    // alternativa económica (heurístico simple de downgrade)
+    const cheapTemp = JSON.parse(JSON.stringify(t));
+    if(cheapTemp.gpu === 'rtx4070') cheapTemp.gpu = 'rtx4060';
+    if(cheapTemp.gpu === 'rtx4060') cheapTemp.gpu = 'rtx3060';
+    if(cheapTemp.cpu === 'top') cheapTemp.cpu = 'high';
+    if(cheapTemp.ram === 'ddr5_64') cheapTemp.ram = 'ddr5_32';
+    const cheap = adjustConfigToBudget(buildConfig(cheapTemp), budgetMax);
+    pushIfUnique(configs, {title:"Alternativa económica (ajustada)", parts: cheap.config, total: cheap.total, note: cheap.total > budgetMax ? `Se excede ${fmt(cheap.total - budgetMax)} COP.` : null});
+
+    // alternativa enfocada GPU
+    const orderGpu = ['gtx1650','rtx3060','rtx4060','rtx4070'];
+    const perfTemp = JSON.parse(JSON.stringify(t));
+    const idx = orderGpu.indexOf(t.gpu);
+    if(idx < orderGpu.length-1) perfTemp.gpu = orderGpu[idx+1];
+    const perf = adjustConfigToBudget(buildConfig(perfTemp), budgetMax);
+    pushIfUnique(configs, {title: perf.total <= budgetMax + EXCESS_LIMIT ? "Alternativa enfocada en GPU" : "Alternativa balanceada", parts: perf.config, total: perf.total, note: perf.total > budgetMax ? `Se excede ${fmt(perf.total - budgetMax)} COP para priorizar GPU.` : null});
+
+    return configs.slice(0,3);
   }
-  return unique.slice(0,3);
-}
 
-function configToHtml(cfg){
-  let s = '<ol class="menu">';
-  cfg.parts.forEach(p => s += `<li>${p.name}: $${formatCOP(p.price)} COP</li>`);
-  s += `</ol><p class="small">💰 Total estimado: $${formatCOP(cfg.total)} COP</p>`;
-  if(cfg.note) s += `<p class="small">⚠️ ${cfg.note}</p>`;
-  return s;
-}
+  /* ---------- Render helpers ---------- */
+  function renderMenuList(items, pre=''){
+    let s = pre + '<ol class="menu">';
+    items.forEach((it,i) => s += `<li><strong>${i+1}.</strong> ${esc(it)}</li>`);
+    s += `</ol>`;
+    return s;
+  }
+  function configToHtml(cfg){
+    let s = '<ol class="menu">';
+    cfg.parts.forEach(p => s += `<li>${esc(p.name)}: $${fmt(p.price)} COP</li>`);
+    s += `</ol><p class="small">💰 Total estimado: $${fmt(cfg.total)} COP</p>`;
+    if(cfg.note) s += `<p class="small">⚠️ ${esc(cfg.note)}</p>`;
+    return s;
+  }
 
-// INTERACCIÓN
-
-userInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') sendMessage(); });
-
-function sendMessage(){
-  const txt = userInput.value.trim();
-  if(!txt) return;
-  appendMessage('user', escapeHtml(txt));
-  userInput.value = '';
-  setTimeout(()=> {
-    const botHtml = getBotResponse(txt);
-    appendMessage('bot', botHtml);
-  }, 300);
-}
-
-function mostrarRangosPresupuesto(){
-  let s = '<p>Elige un rango de presupuesto (escribe el número):</p><ol class="menu">';
-  budgetRanges.forEach((r,i) => s += `<li><strong>${i+1}.</strong> ${r.label}</li>`);
-  s += `<li><strong>6.</strong> Volver atrás</li></ol>`;
-  return s;
-}
-
-function mostrarPropósitos(){
-  const labels = ['Oficina básica','Gaming casual','Edición/Creación de contenido','Streaming','Alta gama profesional'];
-  let s = `<p>Genial, ${escapeHtml(userName)}! 😎 Para comenzar, ¿para qué quieres una PC?</p><ol class="menu">`;
-  labels.forEach((lab,i)=> s += `<li><strong>${i+1}.</strong> ${lab}</li>`);
-  s += `<li><strong>6.</strong> Volver atrás</li></ol>`;
-  return s;
-}
-
-function mostrarOpcionesResumen(){
-  let s = `<p>Ok ${escapeHtml(userName)}, estas son las opciones de PC según tu presupuesto de <strong>$${formatCOP(userBudget)} COP (${escapeHtml(userBudgetLabel)})</strong>:</p><ol class="menu">`;
-  const labels = ['Básica','Media','Alta'];
-  labels.forEach((lab,i)=> s += `<li><strong>${i+1}.</strong> ${lab}</li>`);
-  s += `<li><strong>6.</strong> Volver atrás</li></ol>`;
-  return s;
-}
-
-function getBotResponse(input){
-  const msg = input.toLowerCase().trim();
-
-  // Stage 0 - saludo
-  if(stage === 0){
-    if(msg.includes('hola') || msg.includes('buenas')){
-      stage = 1;
-      return "✨ ¡Hola! ¿Cómo te llamas?";
+  /* ---------- Menús textuales ---------- */
+  function mostrarPropósitos(){
+    const labels = ['Oficina básica','Gaming casual','Edición/Creción de contenido','Streaming','Alta gama profesional'];
+    return `<p>Genial, ${esc(state.userName)}! 😎 Para comenzar, ¿para qué quieres una PC?</p>` + renderMenuList(labels.slice(0,10), '');
+  }
+  function mostrarRangosPresupuesto(){
+    const items = budgetRanges.map(r => r.label);
+    items.push('Volver atrás');
+    return `<p>Elige un rango de presupuesto (escribe el número):</p>` + renderMenuList(items.slice(0,6));
+  }
+  function mostrarOpcionesResumen(){
+    const labels = ['Básica','Media','Alta'];
+    return `<p>Ok ${esc(state.userName)}, estas son las opciones de PC según tu presupuesto de <strong>$${fmt(state.budget)} COP (${esc(state.budgetLabel)})</strong>:</p>` + renderMenuList(labels);
+  }
+  function mostrarPreguntaPerifericos(){
+    const items = ['Sí, quiero añadir periféricos','No, continuar sin periféricos','Volver atrás'];
+    return `<p>¿Deseas añadir periféricos (monitor, teclado, mouse, audífonos, silla)?</p><p>⚠️ Esto puede generar un costo adicional sobre tu presupuesto inicial.</p>` + renderMenuList(items);
+  }
+  function mostrarMenuCategoriasPerifericos(){
+    const items = ['Monitor','Teclado','Mouse','Audífonos','Silla gamer','Finalizar selección','Volver atrás'];
+    return `<p>Perfecto 👌, elige qué periférico deseas añadir (uno por uno):</p>` + renderMenuList(items);
+  }
+  function mostrarOpcionesPeriferico(catKey){
+    const list = peripherals[catKey];
+    let s = `<p>Selecciona una opción para ${catKey === 'monitors' ? 'Monitor' : catKey === 'keyboards' ? 'Teclado' : catKey === 'mice' ? 'Mouse' : catKey === 'headsets' ? 'Audífonos' : 'Silla'}:</p>`;
+    s += '<ol class="menu">';
+    list.forEach((it,i)=> s += `<li><strong>${i+1}.</strong> ${esc(it.name)} — +$${fmt(it.price)} COP</li>`);
+    s += `<li><strong>6.</strong> Volver atrás</li></ol>`;
+    return s;
+  }
+  function mostrarResumenFinal(chosenConfig){
+    const pcTotal = chosenConfig.total;
+    let s = `<p>Resumen final 🧾</p><p>💻 <strong>Configuración base:</strong></p><ol class="menu">`;
+    chosenConfig.parts.forEach(p => s += `<li>${esc(p.name)} — $${fmt(p.price)} COP</li>`);
+    s += `</ol><p class="small">💰 Total PC: $${fmt(pcTotal)} COP</p>`;
+    if(state.peripheralsSelected.length){
+      s += `<p>🧩 <strong>Periféricos añadidos:</strong></p><ol class="menu">`;
+      state.peripheralsSelected.forEach(p => s += `<li>${esc(p.category)} — ${esc(p.name)} — +$${fmt(p.price)} COP</li>`);
+      s += `</ol>`;
+      const perifSubtotal = sum(state.peripheralsSelected);
+      s += `<p class="small">💸 Subtotal periféricos: $${fmt(perifSubtotal)} COP</p>`;
+      s += `<p class="small">💵 <strong>Total final (PC + periféricos): $${fmt(pcTotal + perifSubtotal)} COP</strong></p>`;
     } else {
+      s += `<p class="small">💵 <strong>Total final: $${fmt(pcTotal)} COP</strong></p>`;
+    }
+    s += `<p class="small">Si querés, podés <strong>reiniciar</strong> escribiendo "reiniciar".</p>`;
+    return s;
+  }
+
+  /* ---------- Entrada / Respuesta ---------- */
+  userInput.addEventListener('keydown', e => { if(e.key === 'Enter') sendMessage(); });
+  function sendMessage(){
+    const txt = userInput.value.trim();
+    if(!txt) return;
+    appendMessage('user', esc(txt));
+    userInput.value = '';
+    setTimeout(()=> appendMessage('bot', handleInput(txt)), 200);
+  }
+
+  /* ---------- Lógica principal por stages (refactorizada) ---------- */
+  function handleInput(raw){
+    const msg = raw.toLowerCase().trim();
+
+    // Stage 0 - saludo
+    if(state.stage === 0){
+      if(msg.includes('hola') || msg.includes('buenas')){ state.stage = 1; return '✨ ¡Hola! ¿Cómo te llamas?'; }
       return '👋 Di "hola" para comenzar la conversación.';
     }
-  }
 
-  // Stage 1 - nombre
-  if(stage === 1){
-    if(!/^[a-zA-Záéíóúüñ\s]{2,}$/.test(input)) return "Por favor, escribe un nombre válido (sin números).";
-    userName = input.charAt(0).toUpperCase() + input.slice(1);
-    stage = 2;
-    return mostrarPropósitos();
-  }
-
-  // Stage 2 - propósito
-  if(stage === 2){
-    const n = parseInt(msg);
-    if(isNaN(n) || n < 1 || n > 6) return "❌ Opción inválida. Por favor elige un número del 1 al 6.";
-    if(n === 6){ stage = 1; return "Volviendo atrás. ¿Cómo te llamas?"; }
-    userPurposeIndex = n - 1;
-    stage = 3;
-    return `<p>Perfecto, ${escapeHtml(userName)}. Elegiste <strong>${['Oficina básica','Gaming casual','Edición/Creación de contenido','Streaming','Alta gama profesional'][userPurposeIndex]}</strong>.</p>` + mostrarRangosPresupuesto();
-  }
-
-  // Stage 3 - rango de presupuesto
-  if(stage === 3){
-    const n = parseInt(msg);
-    if(isNaN(n) || n < 1 || n > 6) return "❌ Opción inválida. Elige un número del 1 al 6.";
-    if(n === 6){ stage = 2; return mostrarPropósitos(); }
-    userBudget = budgetRanges[n-1].value;
-    userBudgetLabel = budgetRanges[n-1].label;
-    stage = 4;
-    lastConfigs = generateConfigs(userPurposeIndex, userBudget);
-
-    // evaluar si template ideal excede mucho
-    const template = purposeTemplates[userPurposeIndex];
-    const baseCfg = buildConfigFromTemplate(template);
-    const baseTotal = sumComponents(baseCfg);
-
-    let reply = `<p>Perfecto. Tomé tu presupuesto: <strong>${escapeHtml(userBudgetLabel)}</strong> ($${formatCOP(userBudget)} COP).</p>`;
-    if(baseTotal > userBudget + EXCESS_LIMIT){
-      reply += `<p>😅 Nota: el template ideal para tu elección cuesta alrededor de <strong>$${formatCOP(baseTotal)} COP</strong>, que está por encima de tu rango.</p><p>No te preocupes — te muestro opciones coherentes y adaptadas que respetan tu presupuesto (o se exceden como máximo $${formatCOP(EXCESS_LIMIT)} si es necesario).</p>`;
-    } else {
-      reply += `<p>👌 Genial — te muestro varias configuraciones adaptadas a ese presupuesto.</p>`;
+    // Stage 1 - nombre
+    if(state.stage === 1){
+      if(!/^[a-zA-Záéíóúüñ\s]{2,}$/.test(raw)) return "Por favor, escribe un nombre válido (sin números).";
+      state.userName = raw.charAt(0).toUpperCase() + raw.slice(1);
+      state.stage = 2;
+      return mostrarPropósitos();
     }
 
-    // mostrar opciones en lista numerada
-    reply += `<p>Elige una opción para ver detalles (escribe el número), o 6 para volver atrás:</p><ol class="menu">`;
-    lastConfigs.forEach((c,i) => {
-      reply += `<li><strong>${i+1}.</strong> ${escapeHtml(c.title)} — Total aproximado: $${formatCOP(c.total)} COP${c.note ? ` (⚠️ ${escapeHtml(c.note)})` : ''}</li>`;
-    });
-    reply += `<li><strong>6.</strong> Volver atrás</li></ol>`;
-    return reply;
+    // Stage 2 - propósito
+    if(state.stage === 2){
+      const n = parseInt(msg);
+      if(isNaN(n) || n < 1 || n > 6) return "❌ Opción inválida. Por favor elige un número del 1 al 6.";
+      if(n === 6){ state.stage = 1; return "Volviendo atrás. ¿Cómo te llamas?"; }
+      state.purposeIndex = n - 1;
+      state.stage = 3;
+      const label = ['Oficina básica','Gaming casual','Edición/Creación de contenido','Streaming','Alta gama profesional'][state.purposeIndex];
+      return `<p>Perfecto, ${esc(state.userName)}. Elegiste <strong>${esc(label)}</strong>.</p>` + mostrarRangosPresupuesto();
+    }
+
+    // Stage 3 - rango de presupuesto
+    if(state.stage === 3){
+      const n = parseInt(msg);
+      if(isNaN(n) || n < 1 || n > 6) return "❌ Opción inválida. Elige un número del 1 al 6.";
+      if(n === 6){ state.stage = 2; return mostrarPropósitos(); }
+      state.budget = budgetRanges[n-1].value;
+      state.budgetLabel = budgetRanges[n-1].label;
+      state.stage = 4;
+      state.lastConfigs = generateConfigs(state.purposeIndex, state.budget);
+
+      // chequeo quick del template ideal
+      const baseTotal = sum(buildConfig(purposeTemplates[state.purposeIndex]));
+      let reply = `<p>Perfecto. Tomé tu presupuesto: <strong>${esc(state.budgetLabel)}</strong> ($${fmt(state.budget)} COP).</p>`;
+      if(baseTotal > state.budget + EXCESS_LIMIT){
+        reply += `<p>😅 Nota: el template ideal para tu elección cuesta alrededor de <strong>$${fmt(baseTotal)} COP</strong>, que está por encima de tu rango.</p><p>No te preocupes — te muestro opciones coherentes y adaptadas que respetan tu presupuesto (o se exceden como máximo $${fmt(EXCESS_LIMIT)} si es necesario).</p>`;
+      } else {
+        reply += `<p>👌 Genial — te muestro varias configuraciones adaptadas a ese presupuesto.</p>`;
+      }
+
+      // listar configs
+      let listHtml = `<p>Elige una opción para ver detalles (escribe el número), o 6 para volver atrás:</p><ol class="menu">`;
+      state.lastConfigs.forEach((c,i)=> listHtml += `<li><strong>${i+1}.</strong> ${esc(c.title)} — Total aproximado: $${fmt(c.total)} COP${c.note ? ` (⚠️ ${esc(c.note)})` : ''}</li>`);
+      listHtml += `<li><strong>6.</strong> Volver atrás</li></ol>`;
+      return reply + listHtml;
+    }
+
+    // Stage 4 - elegir config
+    if(state.stage === 4){
+      const n = parseInt(msg);
+      if(isNaN(n)) return `Por favor, elige una opción válida (1-${state.lastConfigs.length}) o 6 para volver atrás.`;
+      if(n === 6){ state.stage = 3; return mostrarRangosPresupuesto(); }
+      if(n < 1 || n > state.lastConfigs.length) return `Elige una opción entre 1 y ${state.lastConfigs.length} o 6 para volver.`;
+      state.chosenConfig = state.lastConfigs[n-1];
+      state.stage = 5;
+      let details = `<p>🖥️ <strong>${esc(state.chosenConfig.title)}</strong></p>`;
+      details += configToHtml(state.chosenConfig);
+      details += `<p class="small">Si querés otra alternativa escribe <strong>otra</strong>. Para aceptar escribe <strong>acepto</strong>. Para reiniciar escribe <strong>reiniciar</strong>. Para volver atrás escribe <strong>6</strong>.</p>`;
+      return details;
+    }
+
+    // Stage 5 - acciones tras ver config
+    if(state.stage === 5){
+      if(msg === 'otra' || msg.includes('otra opción') || msg.includes('otra opcion')){
+        state.lastConfigs = generateConfigs(state.purposeIndex, state.budget);
+        state.stage = 4;
+        let r = `<p>Perfecto, genero otras alternativas:</p><ol class="menu">`;
+        state.lastConfigs.forEach((c,i)=> r += `<li><strong>${i+1}.</strong> ${esc(c.title)} — $${fmt(c.total)} COP${c.note ? ` (⚠️ ${esc(c.note)})` : ''}</li>`);
+        r += `<li><strong>6.</strong> Volver atrás</li></ol><p class="small">Escribe 1-${state.lastConfigs.length} para ver detalles, o 6 para volver atrás.</p>`;
+        return r;
+      }
+      if(msg === 'reiniciar' || msg === 'reset' || msg === 'reinicia'){
+        resetAll();
+        return '🔄 Reiniciando chat... Di "hola" cuando quieras volver a empezar.';
+      }
+      if(msg === '6'){
+        state.stage = 4;
+        let reply = `<p>Elige una opción para ver detalles (escribe el número), o 6 para volver atrás:</p><ol class="menu">`;
+        state.lastConfigs.forEach((c,i) => reply += `<li><strong>${i+1}.</strong> ${esc(c.title)} — Total aproximado: $${fmt(c.total)} COP${c.note ? ` (⚠️ ${esc(c.note)})` : ''}</li>`);
+        reply += `<li><strong>6.</strong> Volver atrás</li></ol>`;
+        return reply;
+      }
+      if(msg.includes('acepto') || msg.includes('comprar') || msg.includes('lo quiero') || msg.includes('perfecto')){
+        // aceptar y pasar a preguntar por periféricos
+        state.peripheralsSelected = [];
+        state.stage = 6;
+        let finish = `<p>Genial ${esc(state.userName)}, excelente elección ✅. Resumen:</p>`;
+        finish += configToHtml(state.chosenConfig);
+        if(state.chosenConfig.total > state.budget) finish += `<p class="small">⚠️ Te excedes por $${fmt(state.chosenConfig.total - state.budget)} COP. Podés ajustar GPU o SSD para bajar precio.</p>`;
+        finish += `<p class="small">¿Querés añadir periféricos? (esto puede aumentar el costo total)</p>`;
+        finish += mostrarPreguntaPerifericos();
+        return finish;
+      }
+      if(msg === 'lista'){
+        const chosen = state.chosenConfig || state.lastConfigs[0];
+        let list = `<p>Lista de compra (componentes):</p><ol class="menu">`;
+        chosen.parts.forEach(p => list += `<li>${esc(p.name)} - $${fmt(p.price)} COP</li>`);
+        list += `</ol><p class="small">Total: $${fmt(chosen.total)} COP</p><p class="small">Si querés reiniciá con "reiniciar".</p>`;
+        return list;
+      }
+      return 'No entendí esa acción. Responde con "otra", "acepto", "lista", "reiniciar" o escribe 6 para volver atrás.';
+    }
+
+    // Stage 6 - pregunta periféricos
+    if(state.stage === 6){
+      const n = parseInt(msg);
+      if(isNaN(n)) return 'Por favor elige una opción válida: 1 (sí), 2 (no) o 6 para volver.';
+      if(n === 1){ state.stage = 7; state.stage7State = { mode: 'categories', currentCategory: null }; return mostrarMenuCategoriasPerifericos(); }
+      if(n === 2){ state.stage = 8; return mostrarResumenFinal(state.chosenConfig); }
+      if(n === 6){ state.stage = 5; return configToHtml(state.chosenConfig) + `<p class="small">Si querés otra alternativa escribe <strong>otra</strong>. Para aceptar escribe <strong>acepto</strong>. Para reiniciar escribe <strong>reiniciar</strong>. Para volver atrás escribe <strong>6</strong>.</p>`; }
+      return 'Opción no válida. Elige 1 para añadir periféricos, 2 para continuar sin ellos, o 6 para volver.';
+    }
+
+    // Stage 7 - flujo de selección de periféricos (uno a uno)
+    if(state.stage === 7){
+      if(!state.stage7State) state.stage7State = { mode: 'categories', currentCategory: null };
+      const s7 = state.stage7State;
+      const n = parseInt(msg);
+      if(s7.mode === 'categories'){
+        if(isNaN(n)) return 'Por favor, elige una opción válida del menú de periféricos (1-7).';
+        if(n >= 1 && n <= 5){
+          const keys = ['monitors','keyboards','mice','headsets','chairs'];
+          s7.currentCategory = keys[n-1];
+          s7.mode = 'categoryOptions';
+          return mostrarOpcionesPeriferico(s7.currentCategory);
+        }
+        if(n === 6){ state.stage7State = null; state.stage = 8; return mostrarResumenFinal(state.chosenConfig); }
+        if(n === 7){ state.stage7State = null; state.stage = 6; return mostrarPreguntaPerifericos(); }
+        return 'Opción inválida. Elige 1-5 para añadir una categoría, 6 finalizar, 7 volver atrás.';
+      }
+      // modo categoryOptions
+      if(s7.mode === 'categoryOptions'){
+        if(isNaN(n)) return 'Por favor, elige una opción válida para el periférico (1-5) o 6 para volver.';
+        if(n >= 1 && n <= 5){
+          const chosen = peripherals[s7.currentCategory][n-1];
+          state.peripheralsSelected.push({
+            category: s7.currentCategory === 'monitors' ? 'Monitor' :
+                      s7.currentCategory === 'keyboards' ? 'Teclado' :
+                      s7.currentCategory === 'mice' ? 'Mouse' :
+                      s7.currentCategory === 'headsets' ? 'Audífonos' : 'Silla',
+            name: chosen.name,
+            price: chosen.price
+          });
+          s7.mode = 'categories';
+          s7.currentCategory = null;
+          return `<p>✅ ${esc(chosen.name)} agregado (+$${fmt(chosen.price)} COP).</p>` + mostrarMenuCategoriasPerifericos();
+        }
+        if(n === 6){ s7.mode = 'categories'; s7.currentCategory = null; return mostrarMenuCategoriasPerifericos(); }
+        return 'Opción inválida. Elige 1-5 para seleccionar la variante o 6 para volver.';
+      }
+    }
+
+    // Stage 8 - resumen final y opciones
+    if(state.stage === 8){
+      if(msg.includes('reiniciar') || msg.includes('reset')){ resetAll(); return '🔄 Reiniciado. Decime "hola" para comenzar de nuevo.'; }
+      if(msg === 'lista' || msg === 'resumen' || msg === 'mostrar') return mostrarResumenFinal(state.chosenConfig || state.lastConfigs[0]);
+      return 'Si querés reiniciar el chat escribe "reiniciar".';
+    }
+
+    return "No entendí, probá de nuevo (elige números válidos o escribe 'reiniciar' para empezar de nuevo).";
   }
 
-  // Stage 4 - elegir config
-  if(stage === 4){
-    const n = parseInt(msg);
-    if(isNaN(n)) return `Por favor, elige una opción válida (1-${lastConfigs.length}) o 6 para volver atrás.`;
-    if(n === 6){ stage = 3; return mostrarRangosPresupuesto(); }
-    if(n < 1 || n > lastConfigs.length) return `Elige una opción entre 1 y ${lastConfigs.length} o 6 para volver.`;
-    const chosen = lastConfigs[n-1];
-    userLastChoice = chosen;
-    let details = `<p>🖥️ <strong>${escapeHtml(chosen.title)}</strong></p>`;
-    details += configToHtml(chosen);
-    details += `<p class="small">Si querés otra alternativa escribe <strong>otra</strong>. Para aceptar escribe <strong>acepto</strong>. Para reiniciar escribe <strong>reiniciar</strong>. Para volver atrás escribe <strong>6</strong>.</p>`;
-    stage = 5;
-    return details;
+  /* ---------- Reset ---------- */
+  function resetAll(){
+    state.stage = 0;
+    state.userName = '';
+    state.purposeIndex = null;
+    state.budget = 0;
+    state.budgetLabel = '';
+    state.lastConfigs = [];
+    state.chosenConfig = null;
+    state.peripheralsSelected = [];
+    state.stage7State = null;
   }
 
-  // Stage 5 - acciones después de ver config
-  if(stage === 5){
-    if(msg === 'otra' || msg === 'otra opción' || msg === 'otra opcion'){
-      lastConfigs = generateConfigs(userPurposeIndex, userBudget);
-      stage = 4;
-      let r = `<p>Perfecto, genero otras alternativas:</p><ol class="menu">`;
-      lastConfigs.forEach((c,i)=> r += `<li><strong>${i+1}.</strong> ${escapeHtml(c.title)} — $${formatCOP(c.total)} COP${c.note ? ` (⚠️ ${escapeHtml(c.note)})` : ''}</li>`);
-      r += `<li><strong>6.</strong> Volver atrás</li></ol><p class="small">Escribe 1-${lastConfigs.length} para ver detalles, o 6 para volver atrás.</p>`;
-      return r;
-    }
-    if(msg === 'reiniciar' || msg === 'reset' || msg === 'reinicia'){
-      stage = 0; userName=''; userPurposeIndex=null; userBudget=0; lastConfigs=[]; userLastChoice=null;
-      return '🔄 Reiniciando chat... Di "hola" cuando quieras volver a empezar.';
-    }
-    if(msg === '6'){
-      stage = 3;
-      return mostrarRangosPresupuesto();
-    }
-    if(msg.includes('acepto') || msg.includes('comprar') || msg.includes('lo quiero') || msg.includes('perfecto')){
-      const chosen = userLastChoice || lastConfigs[0];
-      let finish = `<p>Genial ${escapeHtml(userName)}, excelente elección ✅. Resumen:</p>`;
-      finish += configToHtml(chosen);
-      if(chosen.total > userBudget) finish += `<p class="small">⚠️ Te excedes por $${formatCOP(chosen.total - userBudget)} COP. Podés ajustar GPU o SSD para bajar precio.</p>`;
-      finish += `<p class="small">Si querés, puedo generar una lista de compra (escribe <strong>lista</strong>) o reiniciar (escribe <strong>reiniciar</strong>).</p>`;
-      stage = 6;
-      return finish;
-    }
-    if(msg === 'lista'){
-      const chosen = userLastChoice || lastConfigs[0];
-      let list = `<p>Lista de compra (componentes):</p><ol class="menu">`;
-      chosen.parts.forEach(p => list += `<li>${escapeHtml(p.name)} - $${formatCOP(p.price)} COP</li>`);
-      list += `</ol><p class="small">Total: $${formatCOP(chosen.total)} COP</p><p class="small">Si querés reiniciá con "reiniciar".</p>`;
-      return list;
-    }
-    return 'No entendí esa acción. Responde con "otra", "acepto", "lista", "reiniciar" o escribe 6 para volver atrás.';
-  }
-
-  if(stage === 6){
-    if(msg.includes('reiniciar') || msg.includes('reset')){
-      stage = 0; userName=''; userPurposeIndex=null; userBudget=0; lastConfigs=[]; userLastChoice=null;
-      return '🔄 Reiniciado. Decime "hola" para comenzar de nuevo.';
-    }
-    return 'Si querés reiniciar el chat escribe "reiniciar".';
-  }
-
-  return "No entendí, probá de nuevo (elige números válidos o escribe 'reiniciar' para empezar de nuevo).";
-}
-
-// Inicio
-window.onload = () => {
-  appendMessage('bot', '🌈 Bienvenido al DarkyBot Tornasol Pro. Decime "hola" para empezar!');
-  userInput.focus();
-};
-</script>
-</body>
-</html>
+  /* ---------- Inicio ---------- */
+  window.onload = () => {
+    appendMessage('bot', '🌈 Bienvenido al DarkyBot Tornasol Pro. Decime \"hola\" para empezar!');
+    userInput.focus();
+  };
+  </script>
+  </body>
+  </html>
